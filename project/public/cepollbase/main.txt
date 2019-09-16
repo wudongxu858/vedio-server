@@ -1,0 +1,22 @@
+#include"cepollbase.h"
+#include <stdio.h>
+#include <unistd.h>
+#include<functional>
+#include<iostream>
+using namespace std;
+int main()
+{
+    CEpollBase epoll(20);
+    char buff[256];
+    epoll.AddEvent(STDIN_FILENO);//输入文件描述符
+    epoll.InstallDelFun([&buff](int fd,EPOLL_EVENT event ){
+        memset(buff,0,sizeof(buff));
+        if(fd==STDIN_FILENO)
+        {           
+            read(fd,(void *)buff,sizeof(buff));
+            printf("%s\n",buff);
+        }
+    });
+    epoll.Start();
+    return 0;
+}

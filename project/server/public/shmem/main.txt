@@ -1,0 +1,36 @@
+#include "sharemem.h"
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <unistd.h>
+#include <iostream>
+using namespace std;
+typedef struct tem_t
+{
+  int a;
+  char ch[50];
+  int c;
+}TEMP;
+int main()
+{
+  key_t key=ftok("/tmp",1);
+  ShareMem shamem(key,100,5);
+  TEMP data[5]{{1,"ok\n",0},
+                {2,"ok1\n",0},
+                {3,"ok2\n",0},
+                {4,"ok3\n",0},
+                {5,"ok4\n",0}};
+  for(int i=0;i<5;i++)
+    shamem.SetBolck(i,data[i]);
+  
+  ShareMem sha2(key,100,5);
+  TEMP *temp;
+  
+  for(int i=0;i<5;i++)
+  {
+    temp=sha2.GetBlockAddr<TEMP *>(i);
+    cout<<temp->a<<temp->ch<<temp->c<<endl;
+  }
+  getchar();
+  return 0;
+}

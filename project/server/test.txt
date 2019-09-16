@@ -1,0 +1,132 @@
+/*
+class DelPack{
+public:
+    typedef struct Data_e
+    {
+        int len;
+        char *pdata;
+    }DATA; 
+private:
+    
+    list<DATA *> buff;
+public:
+    DATA* DelData();
+    typedef enum head_type_e{
+        type1=0xFE,
+        type2=0xFF
+    }HEAD_TYPE;
+    typedef struct head_t{
+        u_char type :8;
+        u_char FLAG :8;
+        uint16_t datalen :16;
+    }HEAD_T;
+    typedef struct tail_t{
+        u_char type :8;
+    }TAIL_T;
+    void RecvData(char *data,int len);
+    bool SendData(void *,int len,u_char type);
+
+};
+void DelPack::RecvData(char *data,int len)
+{
+    char* tempc =new char[len];
+    auto tempd =new DelPack::DATA;
+    tempd->len=len;
+    tempd->pdata=tempc;
+    this->buff.push_back(tempd);
+    DelData();
+}
+
+// HEAD DATA TAIL
+
+DelPack::DATA* DelPack::DelData()
+{
+    DelPack::DATA *get_data=NULL;
+    auto  data=buff.front();
+    if(data->len>=sizeof(HEAD_T))//如果数据的长度大于包头长度 就可获取包头内容
+    {
+        int rlen=((HEAD_T *)(data->pdata))->datalen;//数据长度
+        //接收数据足够长
+        if(rlen<=(data->len-sizeof(HEAD_T)-sizeof(TAIL_T)))//存入数据大于一个数据的长度
+        {
+            buff.pop_front();
+            get_data=new DelPack::DATA;
+            get_data->len=data->len;
+            get_data->pdata=new char[data->len];
+            memcpy(get_data->pdata,data->pdata,data->len);
+            if(rlen<data->len-sizeof(HEAD_T)-sizeof(TAIL_T)) //如果数据还有剩截取放入
+            {
+                auto retf=new DelPack::DATA;
+                retf->len=data->len-(sizeof(HEAD_T)+sizeof(TAIL_T)+rlen);
+                retf->pdata = new char[retf->len];
+                memcpy(retf->pdata,data->pdata+(sizeof(HEAD_T)+sizeof(TAIL_T)+rlen),retf->len);
+                buff.push_front(retf);
+            }
+            delete [] data->pdata;
+            delete data;
+            return get_data;           
+        }
+        else if(buff.size()>1)
+        {
+            auto it=buff.begin();
+            char *data1=((*it)->pdata+sizeof(HEAD_T));
+            int len1=(*it)->len;//第一个长度
+            char *data2=(*(++it))->pdata;
+            int len2=(*it)->len;//第二个长度
+            get_data=new DelPack::DATA;
+            get_data->len=rlen;//数据长度
+            get_data->pdata=new char[data->len];
+            memcpy(get_data->pdata,data1,len1);
+            memcpy(get_data->pdata+len1,data2,(rlen-(len1-sizeof(HEAD_T))));
+            buff.pop_front();
+            buff.front()->len=len2-(rlen-(len1-sizeof(HEAD_T)))-sizeof(TAIL_T);              
+            char *ret=new char[buff.front()->len];
+            memcpy(ret,buff.front()->pdata+(len2-buff.front()->len),buff.front()->len);
+            delete [] buff.front()->pdata;
+            buff.front()->pdata=ret;
+            delete [] data->pdata;
+            delete data;
+            return get_data;
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+    else if(buff.size()>1)//包头不够长
+    {
+        auto temp=new DelPack::DATA;
+        auto itt=buff.begin();
+        itt++;
+        temp->len=data->len+(*itt)->len;
+        char *tempc=new char[temp->len];
+        memcpy(tempc,data->pdata,data->len);
+        memcpy(tempc+data->len,(*itt)->pdata,(*itt)->len);
+        delete [] buff.front()->pdata;
+        delete buff.front();
+        buff.pop_front();
+        delete [] buff.front()->pdata;
+        buff.front()->pdata=tempc;
+        {
+            data=buff.front();
+            int rlen=((HEAD_T *)(data->pdata))->datalen;//数据长度
+            buff.pop_front();
+            get_data=new DelPack::DATA;
+            get_data->len=data->len;
+            get_data->pdata=new char[data->len];
+            memcpy(get_data->pdata,data->pdata,data->len);
+            if(rlen<data->len-sizeof(HEAD_T)-sizeof(TAIL_T)) //如果数据还有剩截取放入
+            {
+                auto retf=new DelPack::DATA;
+                retf->len=data->len-(sizeof(HEAD_T)+sizeof(TAIL_T)+rlen);
+                retf->pdata = new char[retf->len];
+                memcpy(retf->pdata,data->pdata+(sizeof(HEAD_T)+sizeof(TAIL_T)+rlen),retf->len);
+                buff.push_front(retf);
+            }
+            delete [] data->pdata;
+            delete data;
+            return get_data;
+        }      
+    }
+    
+}*/
