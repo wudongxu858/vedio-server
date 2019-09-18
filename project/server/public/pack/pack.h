@@ -29,7 +29,6 @@ struct PackLoginAsk
 {
 	char name[20];
 };
-//登入应答包
 struct PackReture
 {
     int type;
@@ -42,17 +41,27 @@ struct PackUserExit
 {
 	char username[20];
 };
-
-
+//登入应答包
+struct PackLoginAns
+{
+	bool is_rename;//true 重名
+	bool is_exit;//true 退出
+};
+//粘包处理返回包
+typedef struct PackReture PACK_RETURN;
 
 typedef struct PackHead PACK_HEAD;
 typedef struct PackTail PACK_TAIL;
-typedef struct PackReture PACK_RETURN;
+typedef struct PackLoginAsk PACK_LOGIN_ASK;
+typedef struct PackLoginAns PACK_LOGIN_ANS;
+typedef struct PackUserExit PACK_USER_EXIT;
 
 #define PACK_HEAD_SIZE       sizeof(PACK_HEAD)
 #define PACK_TAIL_SIZE       sizeof(PACK_TAIL)
 #define PACK_RETURN_SIZE     sizeof(PACK_RETURN)
-
+#define PACK_LOGIN_ASK_SIZE  sizeof(PACK_LOGIN_ASK)
+#define PACK_LOGIN_ANS_SIZE  sizeof(PACK_LOGIN_ANS)
+#define PACK_USER_EXIT_SIZE  sizeof(PACK_USER_EXIT)
 class PackDel
 {
 public:

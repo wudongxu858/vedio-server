@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <functional>
+#include <pthread.h>
 class MySqlite
 {
 public:
@@ -12,11 +13,12 @@ public:
     typedef std::function<void(SQL_ARG)> SQLFUN;
     static MySqlite* getsqlite(void);
 
-    void getdata(char *sql,SQLFUN fun);
+    void getdata(SQLFUN fun,const char *sql,...);
+    void getdata(const char *sql,...);
     ~MySqlite();
 private:
     MySqlite();
-
+    pthread_mutex_t mutex;//线程访问安全
     sqlite3 *db;    
     static bool isDefine;
     static MySqlite *mysql;

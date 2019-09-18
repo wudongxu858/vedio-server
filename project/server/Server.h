@@ -20,7 +20,7 @@
 #include "./public/csem/CSemaphore.h"
 #include "./public/shmem/sharemem.h"
 #include "./public/pack/pack.h"
-
+#include "./public/sqlite/mysqlite.h"
 using namespace std;
 class Base
 {

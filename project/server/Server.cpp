@@ -134,11 +134,27 @@ void PostServer::Recv_Server()
           //  Debug("type =%d ,data=%s",pos.type,buff);
             switch (pos.type)//不同类型数据的处理
             {
-            case 0:
+            case 0://字符串
                 PackDel::setPack(pos.type,pos.size,buff,sendbuff);
                 pos.size=sendlenth;
                 Debug("pack size =%d",pos.size);
                 break;
+            case PACK_LOGASK_VALUE://登入请求
+                PACK_LOGIN_ANS res;
+                [&res](PACK_LOGIN_ASK *data)->void{        
+                    MySqlite::getsqlite()->getdata([&res](SQL_ARG){
+                        res.is_exit=false;
+                        Row==0?res.is_rename=false:res.is_rename=true;
+                    },"select username from user_tab where name = '%s' ;",data->name);
+                }((PACK_LOGIN_ASK*)buff);
+                pos.size=PACK_LOGIN_ANS_SIZE;
+                PackDel::setPack(PACK_LOGANS_VALUE,PACK_LOGIN_ANS_SIZE,&res,sendbuff);
+                break;
+            case PACK_USEREXIT_VALUE://用户退出
+                [](PackUserExit *data)->void{        
+                    MySqlite::getsqlite()->getdata("UPDATA user_tab SET user_state=0 where name = '%s' ;",data->username);
+                }((PackUserExit*)buff);
+                return ;
             default:
                 break;
             }

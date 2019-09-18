@@ -8,6 +8,7 @@ MySqlite::~MySqlite()
 
 MySqlite::MySqlite()
 {
+    pthread_mutex_init(&mutex,NULL);
     int ret=sqlite3_open("myData.sql",&db);
     if (ret == SQLITE_OK)
     {
@@ -39,11 +40,20 @@ MySqlite * MySqlite::getsqlite(void)
 
 
 
-void MySqlite::getdata(char *sql,SQLFUN fun)
+void MySqlite::getdata(SQLFUN fun,const char *sql,...)
 {
+    char ch[2048];
+    va_list ap;
+    va_start(ap, sql);
+    sprintf(ch, sql, ap);
+    va_end(ap);
+    
     char **pResult;
     int Row=0,Col=0;
-    int ret =sqlite3_get_table(db,sql,&pResult,&Row,&Col,0);
+
+    pthread_mutex_lock(&mutex);
+    int ret =sqlite3_get_table(db,ch,&pResult,&Row,&Col,0);
+    pthread_mutex_unlock(&mutex);
     //function(pResult,Row,Col);
     if (ret != SQLITE_OK)
     {
@@ -52,4 +62,22 @@ void MySqlite::getdata(char *sql,SQLFUN fun)
     }
     fun(pResult,Row,Col);
 }
-
+void MySqlite::getdata(const char *sql,...)
+{
+    char ch[2048];
+    va_list ap;
+    va_start(ap, sql);
+    sprintf(ch, sql, ap);
+    va_end(ap);
+    
+    char **pResult;
+    int Row=0,Col=0;
+    pthread_mutex_lock(&mutex);
+    int ret =sqlite3_get_table(db,ch,&pResult,&Row,&Col,0);
+    pthread_mutex_unlock(&mutex);
+    if (ret != SQLITE_OK)
+    {
+        Debug("get data error");
+        return ;
+    }
+}
